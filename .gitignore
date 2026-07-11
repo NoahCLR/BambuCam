@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Xcode / Swift
+build/
+dist/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+.swiftpm/
+BambuKit/.build/
+BambuCam.xcodeproj/
+
+# Local agent instructions (not published)
+CLAUDE.md
+AGENTS.md
+docs/agents/
+.claude/
+.codex/
+
+# Local planning / issue-tracker working area (not published)
+.scratch/
