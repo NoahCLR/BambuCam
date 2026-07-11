@@ -90,6 +90,10 @@ struct MainWindowView: View {
         .onAppear {
             model.cameraViewerAppeared()
             model.openMainWindow = {
+                // The window must be created while the app is a regular app:
+                // windows opened under .accessory never get a working native
+                // fullscreen button, even after the policy flips back.
+                NSApp.setActivationPolicy(.regular)
                 openWindow(id: "main")
                 NSApp.activate(ignoringOtherApps: true)
             }

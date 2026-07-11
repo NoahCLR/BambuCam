@@ -20,8 +20,8 @@ targets:
       properties:
         CFBundleDisplayName: BambuCam
         NSSupportsAutomaticTermination: false
-        CFBundleShortVersionString: "1.0.0"
-        CFBundleVersion: "1"
+        CFBundleShortVersionString: "1.0.1"
+        CFBundleVersion: "2"
         NSHumanReadableCopyright: Copyright © 2026 Noah Christian Le Roy
         NSLocalNetworkUsageDescription: BambuCam connects directly to the private IPv4 address of the printer you pair.
     settings:

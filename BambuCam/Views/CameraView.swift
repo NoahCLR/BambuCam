@@ -111,37 +111,40 @@ struct CameraView: View {
     /// At 1x the camera itself is the window's drag surface. Once zoomed, the
     /// same drag input pans the image instead, while taps and magnification
     /// continue to work in both states.
-    @ViewBuilder
+    // The zoomed/unzoomed states must share one view tree: an if/else here
+    // changes structural identity the moment a pinch crosses the zoom
+    // threshold, which tears down the hit-tested view and cancels the
+    // in-flight MagnifyGesture (and its onEnded, leaving lastMagnification
+    // stale). Behavior is gated with isEnabled/allowsHitTesting instead.
     private func dragAwareSurface<Content: View>(
         in size: CGSize,
         @ViewBuilder content: () -> Content
     ) -> some View {
-        if zoom > 1.001 {
-            content()
-                .gesture(cameraTapGesture(in: size))
-                .simultaneousGesture(
-                    DragGesture()
-                        .updating($gesturePan) { value, state, _ in
-                            state = value.translation
-                        }
-                        .onEnded { value in
-                            let candidate = CGSize(
-                                width: steadyPan.width + value.translation.width,
-                                height: steadyPan.height + value.translation.height
-                            )
-                            steadyPan = clampedPan(candidate, zoom: zoom, in: size)
-                        }
-                )
-        } else {
-            content()
-                .overlay {
-                    Color.clear
-                        .contentShape(Rectangle())
-                        .gesture(WindowDragGesture())
-                        .simultaneousGesture(cameraTapGesture(in: size))
-                        .allowsWindowActivationEvents()
-                }
-        }
+        let zoomed = zoom > 1.001
+        return content()
+            .gesture(cameraTapGesture(in: size))
+            .simultaneousGesture(
+                DragGesture()
+                    .updating($gesturePan) { value, state, _ in
+                        state = value.translation
+                    }
+                    .onEnded { value in
+                        let candidate = CGSize(
+                            width: steadyPan.width + value.translation.width,
+                            height: steadyPan.height + value.translation.height
+                        )
+                        steadyPan = clampedPan(candidate, zoom: zoom, in: size)
+                    },
+                isEnabled: zoomed
+            )
+            .overlay {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .gesture(WindowDragGesture())
+                    .simultaneousGesture(cameraTapGesture(in: size))
+                    .allowsWindowActivationEvents()
+                    .allowsHitTesting(!zoomed)
+            }
     }
 
     private func cameraMagnifyGesture(in size: CGSize) -> some Gesture {
